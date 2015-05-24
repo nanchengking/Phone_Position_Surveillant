@@ -37,8 +37,7 @@ public class MainActivity extends Activity {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			mBinder = (MoveDetectiveService.AccelatorBinder) service;
-			isMoved = mBinder.isMoved();
-			mAccelatorValues = mBinder.accelatorValues;
+			Log.d("Test", "check if the mbind is the same- "+mBinder.id);
 		}
 	};
 
@@ -56,6 +55,13 @@ public class MainActivity extends Activity {
 		 */
 		Intent bindIntent = new Intent(this, MoveDetectiveService.class);
 		bindService(bindIntent, connection, BIND_AUTO_CREATE);
+		
+		/**
+		 * 获得Mbinder的数据
+		 */
+		/*Log.d("Test", mBinder.isBinderAlive()+"");
+		isMoved = mBinder.isMoved();
+		mAccelatorValues = mBinder.accelatorValues;*/
 		
 		//显示经纬度和加速度的texView
 		positionView = (TextView) findViewById(R.id.location_view);

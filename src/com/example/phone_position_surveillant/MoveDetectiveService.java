@@ -21,16 +21,18 @@ import android.widget.Toast;
 public class MoveDetectiveService extends Service {
 
 	boolean isMoveed = false;
-	float xValue;
-	float yValue;
-	float zValue;
+	float xValue=0;
+	float yValue=0;
+	float zValue=0;
 	private SensorManager sensorManager;
 	// 一个用于绑定的binder
-	private AccelatorBinder mBinder = new AccelatorBinder();
+    private AccelatorBinder mBinder = new AccelatorBinder();
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		return mBinder;
+		mBinder.id=007;
+		Log.d("Test","returned mbind--" +mBinder.isMoved()+"--"+mBinder.getInterfaceDescriptor());
+		return mBinder;		
 	}
 
 	@Override
@@ -92,6 +94,7 @@ public class MoveDetectiveService extends Service {
 	 */
 	class AccelatorBinder extends Binder {
 		private boolean misMoveed;
+		int id=0;
 		float[] accelatorValues = new float[3];
 
 		public AccelatorBinder() {
@@ -100,6 +103,8 @@ public class MoveDetectiveService extends Service {
 			accelatorValues[0] = xValue;
 			accelatorValues[1] = yValue;
 			accelatorValues[2] = zValue;
+			id=1234567890;
+			Log.d("Test", "Binder is generated!");
 		}
 
 		public boolean isMoved() {
