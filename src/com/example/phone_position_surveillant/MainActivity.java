@@ -39,15 +39,15 @@ public class MainActivity extends Activity {
 					Toast.LENGTH_SHORT).show();
 			return;
 		}
+		Log.d("Test", provider.toString()+01);
 		Location location = locationManager.getLastKnownLocation(provider);
-		
+		locationManager.requestLocationUpdates(provider, 1000,1,
+				locationListener);
 		if (location != null) {
 			showLocation(location);
+			Log.d("Test", location.toString()+03);
 		}
-		
-		locationManager.requestLocationUpdates(provider, 500, 1,
-				locationListener);
-
+		Log.d("Test", locationListener.toString()+02);
 	}
 
 	@Override
@@ -80,6 +80,7 @@ public class MainActivity extends Activity {
 		public void onLocationChanged(Location location) {
 			// 位置发生了改变
 			showLocation(location);
+			Log.d("Test", location.toString()+03);
 
 		}
 
@@ -103,6 +104,9 @@ public class MainActivity extends Activity {
 		String currentPosition = "纬度是：" + location.getLatitude() + "\n"
 				+ "经度是：" + location.getLongitude();
 		positionView.setText(currentPosition);
+		
+		int i=0;
+		Log.d("Test","-"+(i++)+ location.toString());
 
 	}
 
