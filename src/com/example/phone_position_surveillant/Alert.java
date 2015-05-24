@@ -25,10 +25,8 @@ public class Alert {
 	/**
 	 * ≤•∑≈“Ù¿÷£®æØ∏Ê“Ù£©
 	 */
-	public void playMusic() {
-		if (!mp.isPlaying()) {
+	public void playMusic() {	
 			mp.start();
-		}
 	}
 
 }
