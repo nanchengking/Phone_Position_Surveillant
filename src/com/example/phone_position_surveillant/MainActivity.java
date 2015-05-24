@@ -67,7 +67,8 @@ public class MainActivity extends Activity {
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		providerList = locationManager.getProviders(true);
 		/**
-		 * 优先使用网络定位器
+		 * 优先使用网络定位器，我有什么办法呢，
+		 * GPS初始化那么慢，劳资一次没成功现实过
 		 */
 		if (providerList.contains(LocationManager.NETWORK_PROVIDER)) {
 			provider = LocationManager.NETWORK_PROVIDER;
