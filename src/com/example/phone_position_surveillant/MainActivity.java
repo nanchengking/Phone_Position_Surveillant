@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
 	private LocationManager locationManager;
 	private String provider;
 	List<String> providerList;
-	private MoveDetectiveService.AccelatorBinder mBinder;
+	private AccelatorBinder mBinder;
 	private boolean isMoved;
 	float[] mAccelatorValues=new float[3];
 	private ServiceConnection connection = new ServiceConnection() {
@@ -36,8 +36,8 @@ public class MainActivity extends Activity {
 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
-			mBinder = (MoveDetectiveService.AccelatorBinder) service;
-			Log.d("Test", "check if the mbind is the same- "+mBinder.id);
+			mBinder = (AccelatorBinder) service;
+			Log.d("Test", "check if the mbind is the same- "+mBinder.accelatorValues[1]);
 		}
 	};
 
@@ -59,9 +59,8 @@ public class MainActivity extends Activity {
 		/**
 		 * 获得Mbinder的数据
 		 */
-		/*Log.d("Test", mBinder.isBinderAlive()+"");
-		isMoved = mBinder.isMoved();
-		mAccelatorValues = mBinder.accelatorValues;*/
+		//Log.d("Test", "check binder again: is alive?-"+mBinder.isBinderAlive()+"-"+mBinder.id);
+		
 		
 		//显示经纬度和加速度的texView
 		positionView = (TextView) findViewById(R.id.location_view);
@@ -81,7 +80,7 @@ public class MainActivity extends Activity {
 		}
 		
 		Location location = locationManager.getLastKnownLocation(provider);
-		locationManager.requestLocationUpdates(provider, 2000,2,
+		locationManager.requestLocationUpdates(provider, 2000,1,
 				locationListener);
 		if (location != null) {
 			showLocation(location);
@@ -130,7 +129,6 @@ public class MainActivity extends Activity {
 		public void onLocationChanged(Location location) {
 			// 位置发生了改变
 			showLocation(location);
-			Log.d("Test", location.toString() + 03);
 
 		}
 
@@ -150,10 +148,11 @@ public class MainActivity extends Activity {
 		}
 	};
 
-	private void showLocation(Location location) {
+	private  void  showLocation(Location location) {
+		
 		String currentPosition = "纬度是：" + location.getLatitude() + "\n"
-				+ "经度是：" + location.getLongitude() + mAccelatorValues[0] + "\n"
-				+ mAccelatorValues[1] + "\n" + mAccelatorValues[2];
+				+ "经度是：" + location.getLongitude() + "\n"+ mBinder.accelatorValues[0]+ "\n"
+				+ mBinder.accelatorValues[1] + "\n" + mBinder.accelatorValues[2];
 		positionView.setText(currentPosition);
 
 		int i = 0;

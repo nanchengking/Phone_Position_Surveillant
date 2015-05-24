@@ -21,16 +21,12 @@ import android.widget.Toast;
 public class MoveDetectiveService extends Service {
 
 	boolean isMoveed = false;
-	float xValue=0;
-	float yValue=0;
-	float zValue=0;
 	private SensorManager sensorManager;
 	// 一个用于绑定的binder
-    private AccelatorBinder mBinder = new AccelatorBinder();
+    private AccelatorBinder mBinder = AccelatorBinder.getInstence();
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		mBinder.id=007;
 		Log.d("Test","returned mbind--" +mBinder.isMoved()+"--"+mBinder.getInterfaceDescriptor());
 		return mBinder;		
 	}
@@ -64,18 +60,18 @@ public class MoveDetectiveService extends Service {
 			float mxValue = Math.abs(event.values[0]);
 			float myValue = Math.abs(event.values[1]);
 			float mzValue = Math.abs(event.values[2]);
-			xValue = mxValue;
-			yValue = myValue;
-			zValue = mzValue;
 
-			if (mxValue > 15 || myValue > 15 || mzValue > 16) {
+			if (mxValue > 15 || myValue > 15 || mzValue > 15) {
+				mBinder.accelatorValues[0] = mxValue;
+				mBinder.accelatorValues[1]= myValue;
+				mBinder.accelatorValues[2] = mzValue;
 				// 认为手机出现了晃动
 				Toast.makeText(MoveDetectiveService.this, "手机被移动",
 						Toast.LENGTH_SHORT).show();
 				isMoveed = true;
 				int i = 0;
-				Log.d("Test", "--" + (i++) + "\n" + xValue + "\n" + yValue
-						+ "\n" + zValue);
+				Log.d("Test", "--" + (i++) + "\n" + mBinder.accelatorValues[0]  + "\n" + mBinder.accelatorValues[1] 
+						+ "\n" + mBinder.accelatorValues[2] );
 
 			}
 		}
@@ -86,30 +82,5 @@ public class MoveDetectiveService extends Service {
 		}
 	};
 
-	/**
-	 * 一个内部类，binder，用来在活动能够和服务之间通信，能够通过getAccelatorMeaasge（）来得到一个加速度数组
-	 * 
-	 * @author Administrator
-	 *
-	 */
-	class AccelatorBinder extends Binder {
-		private boolean misMoveed;
-		int id=0;
-		float[] accelatorValues = new float[3];
-
-		public AccelatorBinder() {
-			super();
-			misMoveed = isMoveed;
-			accelatorValues[0] = xValue;
-			accelatorValues[1] = yValue;
-			accelatorValues[2] = zValue;
-			id=1234567890;
-			Log.d("Test", "Binder is generated!");
-		}
-
-		public boolean isMoved() {
-			return misMoveed;
-		}
-	}
 
 }
