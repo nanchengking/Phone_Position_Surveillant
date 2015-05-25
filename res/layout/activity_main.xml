@@ -8,9 +8,19 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.phone_position_surveillant.MainActivity" >
 
-    <TextView      
+    <TextView    
+        android:layout_alignParentTop="true"  
         android:id="@+id/location_view"
-        android:layout_width="wrap_content"
+        android:hint="this is hint"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+    <com.baidu.mapapi.map.MapView
+        android:layout_below="@+id/location_view"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/map_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        ></com.baidu.mapapi.map.MapView>
 
 </RelativeLayout>

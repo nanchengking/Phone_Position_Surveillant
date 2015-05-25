@@ -2,6 +2,9 @@ package com.example.phone_position_surveillant;
 
 import java.util.List;
 
+import com.baidu.mapapi.BMapManager;
+import com.baidu.mapapi.map.MapView;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -26,6 +29,14 @@ public class MainActivity extends Activity {
 	List<String> providerList;
 	private AccelatorBinder mBinder;
 	private boolean isMoved;
+	
+	/*
+	 * 百度的东西哦哦哦
+	 */
+	private BMapManager baiduManager;
+	private MapView mapView;
+	
+	
 	float[] mAccelatorValues=new float[3];
 	private ServiceConnection connection = new ServiceConnection() {
 
@@ -44,25 +55,26 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		/*
+		 * 获得baiduMapManager
+		 */
+		baiduManager=new BMapManager(this);
+		baiduManager.init("MUChAgwIZd6RvtWm8Fx1fIu3", null);
+		
 		setContentView(R.layout.activity_main);
-		/**
+		/*
 		 * 立马启动服务
 		 */
 		Intent startIntent = new Intent(this, MoveDetectiveService.class);
 		startService(startIntent);
-		/**
+		/*
 		 * 绑定服务
 		 */
 		Intent bindIntent = new Intent(this, MoveDetectiveService.class);
 		bindService(bindIntent, connection, BIND_AUTO_CREATE);
+		//再一次记住，控件初始化一定要在setContent之前——
+		mapView=(MapView)findViewById(R.id.map_view);
 		
-		/**
-		 * 获得Mbinder的数据
-		 */
-		//Log.d("Test", "check binder again: is alive?-"+mBinder.isBinderAlive()+"-"+mBinder.id);
-		
-		
-		//显示经纬度和加速度的texView
 		positionView = (TextView) findViewById(R.id.location_view);
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		providerList = locationManager.getProviders(true);
@@ -114,13 +126,21 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		super.onDestroy();
+		
+		mapView.destroy();
+		if(baiduManager!=null){
+			baiduManager.destroy();
+			baiduManager=null;
+		}
+		
+		
 		if (locationManager != null) {
 			locationManager.removeUpdates(locationListener);
 		}
 		unbindService(connection);
 		Intent stopService = new Intent(this, MoveDetectiveService.class);
 		stopService(stopService);
+		super.onDestroy();
 
 	}
 
@@ -156,9 +176,24 @@ public class MainActivity extends Activity {
 				+ mBinder.accelatorValues[1] + "\n" + mBinder.accelatorValues[2];
 		positionView.setText(currentPosition);
 
-		int i = 0;
-		Log.d("Test", "-" + (i++) + location.toString());
+	}
 
+	@Override
+	protected void onResume() {
+		mapView.onResume();
+		if(baiduManager!=null){
+			baiduManager.start();
+		}
+		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		mapView.onPause();
+		if(baiduManager!=null){
+			baiduManager.stop();
+		}
+		super.onPause();
 	}
 
 }
