@@ -23,21 +23,21 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
+	private boolean isServiceAlive = false;
 	private TextView positionView;
 	private LocationManager locationManager;
 	private String provider;
 	List<String> providerList;
 	private AccelatorBinder mBinder;
 	private boolean isMoved;
-	
+
 	/*
 	 * 百度的东西哦哦哦
 	 */
 	private BMapManager baiduManager;
 	private MapView mapView;
-	
-	
-	float[] mAccelatorValues=new float[3];
+
+	float[] mAccelatorValues = new float[3];
 	private ServiceConnection connection = new ServiceConnection() {
 
 		@Override
@@ -48,7 +48,8 @@ public class MainActivity extends Activity {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			mBinder = (AccelatorBinder) service;
-			Log.d("Test", "check if the mbind is the same- "+mBinder.accelatorValues[1]);
+			Log.d("Test", "check if the mbind is the same- "
+					+ mBinder.accelatorValues[1]);
 		}
 	};
 
@@ -58,29 +59,19 @@ public class MainActivity extends Activity {
 		/*
 		 * 获得baiduMapManager
 		 */
-		baiduManager=new BMapManager(this);
+		baiduManager = new BMapManager(this);
 		baiduManager.init("MUChAgwIZd6RvtWm8Fx1fIu3", null);
-		
+
 		setContentView(R.layout.activity_main);
-		/*
-		 * 立马启动服务
-		 */
-		Intent startIntent = new Intent(this, MoveDetectiveService.class);
-		startService(startIntent);
-		/*
-		 * 绑定服务
-		 */
-		Intent bindIntent = new Intent(this, MoveDetectiveService.class);
-		bindService(bindIntent, connection, BIND_AUTO_CREATE);
-		//再一次记住，控件初始化一定要在setContent之前——
-		mapView=(MapView)findViewById(R.id.map_view);
-		
+
+		// 再一次记住，控件初始化一定要在setContent之前——
+		mapView = (MapView) findViewById(R.id.map_view);
+
 		positionView = (TextView) findViewById(R.id.location_view);
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		providerList = locationManager.getProviders(true);
 		/**
-		 * 优先使用网络定位器，我有什么办法呢，
-		 * GPS初始化那么慢，劳资一次没成功现实过
+		 * 优先使用网络定位器，我有什么办法呢， GPS初始化那么慢，劳资一次没成功现实过
 		 */
 		if (providerList.contains(LocationManager.NETWORK_PROVIDER)) {
 			provider = LocationManager.NETWORK_PROVIDER;
@@ -91,9 +82,9 @@ public class MainActivity extends Activity {
 					Toast.LENGTH_SHORT).show();
 			return;
 		}
-		
+
 		Location location = locationManager.getLastKnownLocation(provider);
-		locationManager.requestLocationUpdates(provider, 2000,1,
+		locationManager.requestLocationUpdates(provider, 2000, 1,
 				locationListener);
 		if (location != null) {
 			showLocation(location);
@@ -112,13 +103,23 @@ public class MainActivity extends Activity {
 		int id = item.getItemId();
 		switch (id) {
 		case R.id.star_service:
-			
+			/*
+			 * 立马启动服务
+			 */
+			Intent startIntent = new Intent(this, MoveDetectiveService.class);
+			startService(startIntent);
+			/*
+			 * 绑定服务
+			 */
+			Intent bindIntent = new Intent(this, MoveDetectiveService.class);
+			bindService(bindIntent, connection, BIND_AUTO_CREATE);
+			isServiceAlive = true;
 			break;
-		case R.id.bind:
-			
-			break;
-		case R.id.unbind:
+		case R.id.stop_service:
 			unbindService(connection);
+			Intent stopService = new Intent(this, MoveDetectiveService.class);
+			stopService(stopService);
+			isServiceAlive = false;
 			break;
 		}
 		return super.onOptionsItemSelected(item);
@@ -126,20 +127,22 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		
+
 		mapView.destroy();
-		if(baiduManager!=null){
+		if (baiduManager != null) {
 			baiduManager.destroy();
-			baiduManager=null;
+			baiduManager = null;
 		}
-		
-		
-		if (locationManager != null) {
-			locationManager.removeUpdates(locationListener);
+
+		if (isServiceAlive) {
+			if (locationManager != null) {
+				locationManager.removeUpdates(locationListener);
+			}
+			unbindService(connection);
+			Intent stopService = new Intent(this, MoveDetectiveService.class);
+			stopService(stopService);
 		}
-		unbindService(connection);
-		Intent stopService = new Intent(this, MoveDetectiveService.class);
-		stopService(stopService);
+
 		super.onDestroy();
 
 	}
@@ -169,11 +172,13 @@ public class MainActivity extends Activity {
 		}
 	};
 
-	private  void  showLocation(Location location) {
-		
+	private void showLocation(Location location) {
+
 		String currentPosition = "纬度是：" + location.getLatitude() + "\n"
-				+ "经度是：" + location.getLongitude() + "\n"+ mBinder.accelatorValues[0]+ "\n"
-				+ mBinder.accelatorValues[1] + "\n" + mBinder.accelatorValues[2];
+				+ "经度是：" + location.getLongitude() + "\n"
+				+ mBinder.accelatorValues[0] + "\n"
+				+ mBinder.accelatorValues[1] + "\n"
+				+ mBinder.accelatorValues[2];
 		positionView.setText(currentPosition);
 
 	}
@@ -181,7 +186,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume() {
 		mapView.onResume();
-		if(baiduManager!=null){
+		if (baiduManager != null) {
 			baiduManager.start();
 		}
 		super.onResume();
@@ -190,7 +195,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onPause() {
 		mapView.onPause();
-		if(baiduManager!=null){
+		if (baiduManager != null) {
 			baiduManager.stop();
 		}
 		super.onPause();

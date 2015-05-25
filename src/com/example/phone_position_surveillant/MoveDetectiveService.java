@@ -21,7 +21,7 @@ import android.widget.Toast;
  */
 public class MoveDetectiveService extends Service {
 
-	private final int RATE=11;
+	private final double RATE=9.9;
 	private Alert alert;
 	
 	boolean isMoveed = false;
@@ -67,7 +67,8 @@ public class MoveDetectiveService extends Service {
 			float myValue = Math.abs(event.values[1]);
 			float mzValue = Math.abs(event.values[2]);
 
-			if (mxValue > RATE || myValue > RATE || mzValue > RATE) {
+			double actionRate=Math.sqrt((mxValue*mxValue+mzValue*mzValue+myValue*myValue));//Math.pow((mxValue*mxValue+mzValue*mzValue+myValue*myValue), (double)(1/2));
+			if ( actionRate> RATE) {
 				mBinder.accelatorValues[0] = mxValue;
 				mBinder.accelatorValues[1]= myValue;
 				mBinder.accelatorValues[2] = mzValue;
